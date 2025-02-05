@@ -1,5 +1,5 @@
 import os
-from backend import db, Image, IMAGES_FOLDER, app
+from app import db, Image, IMAGES_FOLDER, app
 
 def add_images_to_db():
     with app.app_context():  
