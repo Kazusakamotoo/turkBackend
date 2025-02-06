@@ -34,7 +34,7 @@ def get_random_image():
     if not image:
         return jsonify({"error": "No images found in database"}), 404
 
-    BASE_URL = "https://turkbackend.onrender.com"
+    BASE_URL = "https://turkbackend.onrender.com" 
     return jsonify({"image_id": image.id, "image_url": f"{BASE_URL}/static/{image.file_name}"})
 
 @app.route('/static/<path:filename>')
