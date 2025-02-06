@@ -12,7 +12,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///annotations.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-IMAGES_FOLDER = os.path.join(os.getcwd(), "image") #os.path.abspath(os.path.join(os.path.dirname(__file__), "../images"))
+IMAGES_FOLDER = "image" #os.path.abspath(os.path.join(os.path.dirname(__file__), "../images"))
 
 class Image(db.Model):
     id = db.Column(db.Integer, primary_key=True)
