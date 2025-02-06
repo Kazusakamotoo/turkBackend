@@ -74,5 +74,13 @@ def get_annotations():
     annotations = Annotation.query.all()
     return jsonify([{ "worker_id": a.worker_id, "image_id": a.image_id, "segmentation_mask": a.segmentation_mask } for a in annotations])
 
+@app.route('/debug/files', methods=['GET'])
+def list_files():
+    import os
+    if not os.path.exists("image"):
+        return jsonify({"error": "Image folder not found"}), 404
+    files = os.listdir("image")
+    return jsonify({"files": files})
+
 if __name__ == '__main__':
     app.run(debug=True)
