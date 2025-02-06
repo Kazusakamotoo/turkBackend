@@ -37,7 +37,7 @@ def get_random_image():
     BASE_URL = "https://turkbackend.onrender.com" 
     return jsonify({"image_id": image.id, "image_url": f"{BASE_URL}/static/{image.file_name}"})
 
-@app.route('/static/<path:filename>')
+@app.route('/api/image/<path:filename>')
 def serve_image(filename):
     file_path = os.path.join(IMAGES_FOLDER, filename)
     if not os.path.exists(file_path):
