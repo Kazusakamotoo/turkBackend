@@ -41,7 +41,7 @@ def get_random_image():
 def serve_image(filename):
     file_path = os.path.join(IMAGES_FOLDER, filename)
     if not os.path.exists(file_path):
-        return jsonify({"error": "File not found"}), 404
+        return jsonify({"error": f"File {filename} not found in {IMAGES_FOLDER}"}), 404
     return send_from_directory(IMAGES_FOLDER, filename)
 
 @app.route('/api/submit', methods=['POST'])
