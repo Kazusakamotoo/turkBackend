@@ -8,8 +8,10 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///annotations.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db_path = "/data/annotations.db"  # This is a persistent directory in Render
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 db = SQLAlchemy(app)
 
 IMAGES_FOLDER = "image" #os.path.abspath(os.path.join(os.path.dirname(__file__), "../images"))
