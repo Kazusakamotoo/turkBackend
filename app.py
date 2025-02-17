@@ -8,9 +8,8 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL", "sqlite:///annotations.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///annotations.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 db = SQLAlchemy(app)
 
 IMAGES_FOLDER = "image" #os.path.abspath(os.path.join(os.path.dirname(__file__), "../images"))
