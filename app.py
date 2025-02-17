@@ -72,7 +72,15 @@ def submit_annotation():
 @app.route('/api/annotations', methods=['GET'])
 def get_annotations():
     annotations = Annotation.query.all()
-    return jsonify([{ "worker_id": a.worker_id, "image_id": a.image_id, "segmentation_mask": a.segmentation_mask } for a in annotations])
+    return jsonify([
+        {
+            "id": a.id,
+            "worker_id": a.worker_id,
+            "image_id": a.image_id,
+            "bounding_boxes": json.loads(a.segmentation_mask),  # Convert JSON string back to a Python object
+            "timestamp": a.timestamp.strftime("%Y-%m-%d %H:%M:%S")  # Format timestamp
+        } for a in annotations
+    ])
 
 @app.route('/debug/files', methods=['GET'])
 def list_files():
