@@ -2,3 +2,7 @@ flask
 flask_sqlalchemy
 flask_cors
 gunicorn
+google-generativeai 
+pillow 
+opencv-python 
+numpy
