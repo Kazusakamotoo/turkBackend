@@ -47,17 +47,22 @@ def get_random_image():
 
 @app.route('/api/image/<path:filename>', methods=['GET'])
 def serve_image(filename):
-    """Serves images from the local directory."""
     file_path = os.path.join(IMAGES_FOLDER, filename)
     if not os.path.exists(file_path):
         return jsonify({"error": f"File {filename} not found in {IMAGES_FOLDER}"}), 404
     return send_from_directory(IMAGES_FOLDER, filename)
 
 def encode_image(image_path, bbox):
-    """Loads image, draws bounding box, and converts it to Base64 format."""
     image = cv2.imread(image_path)
-    x, y, width, height = bbox
-    x2, y2 = x + width, y + height
+
+    if image is None:
+        raise ValueError(f"Image not found or cannot be read: {image_path}")
+
+    if not bbox or len(bbox) != 4:
+        raise ValueError(f"Invalid bounding box: {bbox}")
+
+    x, y, width, height = map(int, bbox) 
+    x2, y2 = x + width, y + height 
 
     cv2.rectangle(image, (x, y), (x2, y2), (0, 255, 0), 3)
 
@@ -65,7 +70,6 @@ def encode_image(image_path, bbox):
     return base64.b64encode(buffer).decode("utf-8")
 
 def verify_bbox_with_gemini(image_path, bbox):
-    """Sends an image with bounding box to Gemini API and verifies correctness."""
     encoded_image = encode_image(image_path, bbox)
 
     prompt = """
@@ -90,11 +94,15 @@ def verify_bbox_with_gemini(image_path, bbox):
 
 @app.route('/api/validate', methods=['POST'])
 def validate_annotation():
-    """Validates a bounding box using Gemini API."""
     data = request.get_json()
 
     if "image_id" not in data or "bounding_box" not in data:
         return jsonify({"error": "Invalid request format"}), 400
+
+    bbox = data["bounding_box"]
+
+    if not isinstance(bbox, list) or len(bbox) != 4:
+        return jsonify({"error": "Bounding box must be a list of 4 numbers"}), 400
 
     image = Image.query.get(data["image_id"])
     if not image:
@@ -102,13 +110,24 @@ def validate_annotation():
 
     image_path = os.path.join(IMAGES_FOLDER, image.file_name)
 
-    gemini_response = verify_bbox_with_gemini(image_path, data["bounding_box"])
+    try:
+        gemini_response = verify_bbox_with_gemini(image_path, bbox)
 
-    return jsonify({"valid": "Valid" in gemini_response, "reason": gemini_response})
+        return jsonify({
+            "valid": "Valid" in gemini_response,
+            "reason": gemini_response
+        })
+
+    except ValueError as ve:
+        print(f"Value Error: {str(ve)}")  
+        return jsonify({"error": "Value Error", "details": str(ve)}), 400
+
+    except Exception as e:
+        print(f"Unexpected Error: {str(e)}")
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
 
 @app.route('/api/submit', methods=['POST'])
 def submit_annotation():
-    """Stores user-submitted bounding box annotations in the database."""
     data = request.get_json()
 
     if not data or 'worker_id' not in data or 'annotations' not in data:
