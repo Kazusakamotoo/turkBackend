@@ -17,7 +17,7 @@ db = SQLAlchemy(app)
 
 IMAGES_FOLDER = "image"
 
-GEMINI_API_KEY = "YOUR_GEMINI_API_KEY" 
+GEMINI_API_KEY = "AIzaSyBOlW1P-t9dFo9HpPvXuKLYc3Sl6aoL_LQ" 
 genai.configure(api_key=GEMINI_API_KEY)
 
 class Image(db.Model):
