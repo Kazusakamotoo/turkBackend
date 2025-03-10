@@ -17,7 +17,7 @@ db = SQLAlchemy(app)
 
 IMAGES_FOLDER = "image"
 
-GEMINI_API_KEY = "AIzaSyBOlW1P-t9dFo9HpPvXuKLYc3Sl6aoL_LQ" 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
 
 class Image(db.Model):
@@ -82,7 +82,7 @@ def verify_bbox_with_gemini(image_path, bbox):
     Return your answer as "Valid" or "Invalid" followed by a reason.
     """
 
-    model = genai.GenerativeModel("gemini-pro-vision")
+    model = genai.GenerativeModel("gemini-1.5-flash")
     response = model.generate_content(
         [
             prompt,
@@ -94,14 +94,19 @@ def verify_bbox_with_gemini(image_path, bbox):
 
 @app.route('/api/validate', methods=['POST'])
 def validate_annotation():
+    """Validates a bounding box using Gemini API and ensures JSON responses."""
     data = request.get_json()
 
-    if "image_id" not in data or "bounding_box" not in data:
+    print("Received validation request:", json.dumps(data, indent=2))
+
+    if not data or "image_id" not in data or "bounding_box" not in data:
+        print("❌ Invalid request format!")
         return jsonify({"error": "Invalid request format"}), 400
 
     bbox = data["bounding_box"]
 
-    if not isinstance(bbox, list) or len(bbox) != 4:
+    if not isinstance(bbox, list) or len(bbox) != 4 or not all(isinstance(i, (int, float)) for i in bbox):
+        print("❌ Invalid bounding box format:", bbox)
         return jsonify({"error": "Bounding box must be a list of 4 numbers"}), 400
 
     image = Image.query.get(data["image_id"])
@@ -119,12 +124,13 @@ def validate_annotation():
         })
 
     except ValueError as ve:
-        print(f"Value Error: {str(ve)}")  
+        print(f"Value Error: {str(ve)}") 
         return jsonify({"error": "Value Error", "details": str(ve)}), 400
 
     except Exception as e:
         print(f"Unexpected Error: {str(e)}")
         return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+
 
 @app.route('/api/submit', methods=['POST'])
 def submit_annotation():
