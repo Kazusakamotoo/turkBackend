@@ -146,13 +146,15 @@ def submit_annotation():
         if "image_id" not in annotation or "bounding_boxes" not in annotation:
             return jsonify({"error": "Invalid annotation format"}), 400
 
-        new_annotation = Annotation(
-            worker_id=data["worker_id"],
-            image_id=annotation["image_id"],
-            segmentation_mask=json.dumps(annotation["bounding_boxes"]),
-            timestamp=datetime.utcnow() 
-        )
-        db.session.add(new_annotation)
+        for bbox in annotation["bounding_boxes"]:  
+            new_annotation = Annotation(
+                worker_id=data["worker_id"],  
+                image_id=annotation["image_id"],
+                segmentation_mask=json.dumps([bbox]),  
+                timestamp=datetime.utcnow()  
+            )
+            db.session.add(new_annotation)
+
     db.session.commit()
     
 @app.route('/api/annotations', methods=['GET'])
