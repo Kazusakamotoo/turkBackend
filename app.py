@@ -165,6 +165,7 @@ def submit_annotation():
             db.session.add(new_annotation)
 
     db.session.commit()
+    return jsonify({"message": "Annotations submitted successfully!"})
 
 @app.route('/api/annotations', methods=['GET'])
 def get_annotations():
