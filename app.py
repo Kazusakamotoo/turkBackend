@@ -146,17 +146,26 @@ def submit_annotation():
         if "image_id" not in annotation or "bounding_boxes" not in annotation:
             return jsonify({"error": "Invalid annotation format"}), 400
 
-        for bbox in annotation["bounding_boxes"]:  
+        for bbox in annotation["bounding_boxes"]:
+            created_at = bbox.get("createdAt")
+            if created_at:
+                try:
+                    ts = datetime.utcfromtimestamp(created_at / 1000)
+                except Exception as e:
+                    ts = datetime.utcnow()
+            else:
+                ts = datetime.utcnow()
+
             new_annotation = Annotation(
-                worker_id=data["worker_id"],  
+                worker_id=data["worker_id"],
                 image_id=annotation["image_id"],
-                segmentation_mask=json.dumps([bbox]),  
-                timestamp=datetime.utcnow()  
+                segmentation_mask=json.dumps(bbox), 
+                timestamp=ts  
             )
             db.session.add(new_annotation)
 
     db.session.commit()
-    
+
 @app.route('/api/annotations', methods=['GET'])
 def get_annotations():
     """Returns all stored annotations."""
