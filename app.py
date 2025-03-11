@@ -149,13 +149,12 @@ def submit_annotation():
         new_annotation = Annotation(
             worker_id=data["worker_id"],
             image_id=annotation["image_id"],
-            segmentation_mask=json.dumps(annotation["bounding_boxes"])
+            segmentation_mask=json.dumps(annotation["bounding_boxes"]),
+            timestamp=datetime.utcnow() 
         )
         db.session.add(new_annotation)
-
     db.session.commit()
-    return jsonify({"message": "Annotations submitted successfully"})
-
+    
 @app.route('/api/annotations', methods=['GET'])
 def get_annotations():
     """Returns all stored annotations."""
