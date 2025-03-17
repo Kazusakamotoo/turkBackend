@@ -73,13 +73,12 @@ def verify_bbox_with_gemini(image_path, bbox):
     encoded_image = encode_image(image_path, bbox)
 
     prompt = """
-    This image contains an animal with a user-drawn bounding box. 
-    Please determine:
+    This image contains an animal with a user made bounding box. 
+    Please examine the following:
     1. If the bounding box fully encloses the animal.
     2. If the bounding box is too small, too large, or well-fitted.
-    3. Provide a short explanation.
     
-    Return your answer as "Valid" or "Invalid" followed by a reason.
+    Return your answer as "Valid" or "Invalid" and follow it with a short explanation.
     """
 
     model = genai.GenerativeModel("gemini-1.5-flash")
